@@ -1,0 +1,10 @@
+<div class="timescale">
+  <span class="timescale__label">{{ label() }}</span>
+  <ng-select
+    [items]="items()"
+    [bindLabel]="bindLabel"
+    [bindValue]="bindValue"
+    [clearable]="false"
+    (change)="onItemChange($event)"
+  />
+</div>

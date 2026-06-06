@@ -2,7 +2,8 @@ module.exports = {
   displayName: 'work-order-schedule',
   preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../coverage/libs/feature/work-order-schedule',
+  coverageDirectory:
+    '../../../coverage/libs/work-order-schedule/feature-work-order-schedule',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

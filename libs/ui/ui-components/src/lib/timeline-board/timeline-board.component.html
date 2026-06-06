@@ -1,0 +1,52 @@
+<div
+  class="board"
+  [style.--label-w]="labelWidth() + 'px'"
+  [style.--month-w]="monthWidth() + 'px'"
+  [style.--track-w]="trackWidth() + 'px'"
+  [style.--row-h]="rowHeight() + 'px'"
+>
+  <div class="board__grid">
+    <!-- Header: sticky corner + month columns -->
+    <div class="board-header">
+      <div class="board__corner">{{ titleColumn() }}</div>
+      <div class="board__months">
+        @for (col of columns(); track col.key) {
+          <div class="month" [class.month--current]="col.isCurrent">
+            {{ col.label }}
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Body: one sticky title cell + one lane per row -->
+    @for (row of positionedRows(); track row.id) {
+      <div class="board-row">
+        <div class="board__row-label" [title]="row.title">{{ row.title }}</div>
+        <div #boardLane class="board__lane">
+          @for (bar of row.bars; track bar.id) {
+            <div
+              class="bar"
+              [style.left.px]="bar.left"
+              [style.width.px]="bar.width"
+              [style.background]="bar.color"
+              [title]="bar.label"
+            >
+              <span class="bar__label">{{ bar.label }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    } @empty {
+      <div class="board__row-label board__row-label--empty">No data</div>
+      <div class="board__lane"></div>
+    }
+
+    <!-- Bonus: "today" vertical indicator (offset past the sticky label) -->
+    @if (todayX() !== null) {
+      <div
+        class="board__today"
+        [style.left.px]="labelWidth() + (todayX() ?? 0)"
+      ></div>
+    }
+  </div>
+</div>

@@ -1,0 +1,17 @@
+<div class="page">
+  <h1 class="title">Work Orders</h1>
+
+  <ostt-dropdown
+    label="Timescale"
+    [items]="zoomLevels"
+    (itemSelected)="handleZoomLevelChange($event)"
+  />
+
+  <ostt-timeline-board
+    [startDate]="startDate"
+    [endDate]="endDate"
+    [rows]="rows"
+    [zoomLevel]="zoomLevel"
+    titleColumn="Team"
+  />
+</div>
