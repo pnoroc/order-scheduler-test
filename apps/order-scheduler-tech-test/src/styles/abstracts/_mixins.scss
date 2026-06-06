@@ -1,0 +1,23 @@
+// Reusable, side-effect-free mixins. They only emit CSS where invoked.
+
+@use 'functions' as fn;
+
+// Single-line text that ellipsises when it overflows its flex container.
+@mixin truncate {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+}
+
+// Mobile-first media query keyed off the $breakpoints scale.
+@mixin respond-to($name) {
+  @media (min-width: fn.breakpoint($name)) {
+    @content;
+  }
+}

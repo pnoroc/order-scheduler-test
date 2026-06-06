@@ -1,0 +1,15 @@
+// Projects each theme's tokens onto a scope. `:root` carries the default
+// (light) theme; `[data-theme='dark']` overrides it when set on a host element
+// (e.g. `<html data-theme="dark">`). Toggling that attribute swaps the theme at
+// runtime with no recompile.
+
+@use 'tokens';
+@use 'theme';
+
+:root {
+  @include theme.spread(tokens.$light);
+}
+
+[data-theme='dark'] {
+  @include theme.spread(tokens.$dark);
+}

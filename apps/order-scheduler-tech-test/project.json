@@ -18,6 +18,11 @@
           {
             "glob": "**/*",
             "input": "apps/order-scheduler-tech-test/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/order-scheduler-tech-test/src/assets",
+            "output": "assets"
           }
         ],
         "styles": ["apps/order-scheduler-tech-test/src/styles.scss"]
@@ -32,7 +37,7 @@
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "4kb",
+              "maximumWarning": "6kb",
               "maximumError": "8kb"
             }
           ],

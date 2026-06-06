@@ -1,0 +1,26 @@
+// Typed getters over the Sass maps in `_variables.scss`. Each guards against
+// unknown keys so a typo fails the build instead of silently emitting nothing.
+
+@use 'sass:map';
+@use 'variables' as v;
+
+@function z($layer) {
+  @if not map.has-key(v.$z-layers, $layer) {
+    @error "Unknown z-layer `#{$layer}`. Add it to $z-layers in abstracts/_variables.scss.";
+  }
+  @return map.get(v.$z-layers, $layer);
+}
+
+@function radius($size) {
+  @if not map.has-key(v.$radius, $size) {
+    @error "Unknown radius `#{$size}`. Add it to $radius in abstracts/_variables.scss.";
+  }
+  @return map.get(v.$radius, $size);
+}
+
+@function breakpoint($name) {
+  @if not map.has-key(v.$breakpoints, $name) {
+    @error "Unknown breakpoint `#{$name}`. Add it to $breakpoints in abstracts/_variables.scss.";
+  }
+  @return map.get(v.$breakpoints, $name);
+}

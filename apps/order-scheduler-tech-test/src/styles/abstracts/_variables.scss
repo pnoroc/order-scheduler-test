@@ -1,0 +1,31 @@
+// Compile-time Sass variables. These emit NO CSS on their own — they are the
+// raw scales and structural constants consumed by functions, mixins and themes.
+
+// Responsive breakpoints (min-width).
+$breakpoints: (
+  'sm': 576px,
+  'md': 768px,
+  'lg': 992px,
+  'xl': 1200px,
+);
+
+// Named stacking layers. Keep the whole app's z-index vocabulary here so
+// ordering decisions live in one place instead of magic numbers in components.
+$z-layers: (
+  'base': 1,
+  'bar': 2,
+  'sticky-row': 2,
+  'header': 3,
+  'sticky-corner': 5,
+);
+
+// Corner radius scale.
+$radius: (
+  'sm': 6px,
+  'md': 8px,
+  'lg': 12px,
+);
+
+// Primary font stack (Circular Std with system fallbacks).
+$font-stack: 'CircularStd-Medium', -apple-system, blinkmacsystemfont, 'Segoe UI', roboto,
+  helvetica, arial, sans-serif;

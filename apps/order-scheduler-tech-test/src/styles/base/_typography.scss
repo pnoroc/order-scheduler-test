@@ -1,3 +1,5 @@
+@use '../abstracts' as *;
+
 body {
-  font-family: 'Circular Std', sans-serif;
+  font-family: $font-stack;
 }

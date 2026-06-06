@@ -1,0 +1,6 @@
+// Barrel for the abstracts layer so consumers can `@use '../abstracts' as *;`
+// and reach every variable, function and mixin through one entry point.
+
+@forward 'variables';
+@forward 'functions';
+@forward 'mixins';

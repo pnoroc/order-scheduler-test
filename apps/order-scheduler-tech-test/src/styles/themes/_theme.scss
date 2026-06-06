@@ -1,0 +1,8 @@
+// Emits a token map as CSS custom properties onto the current selector.
+// Used by `themes/_index.scss` to project each theme onto its scope.
+
+@mixin spread($tokens) {
+  @each $name, $value in $tokens {
+    --#{$name}: #{$value};
+  }
+}

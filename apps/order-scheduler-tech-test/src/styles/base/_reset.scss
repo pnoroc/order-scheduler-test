@@ -1,0 +1,13 @@
+// Minimal, opinionated reset. Keep this tiny — only the cross-browser defaults
+// the whole app relies on.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}

@@ -1,0 +1,13 @@
+// Global theming overrides for the ng-select dropdown.
+//
+// ng-select renders its options into an overlay appended to the body, which
+// falls outside any component's view encapsulation — so any visual override of
+// the control must live here, at the global level, where it can reach those
+// nodes. Style against the theme custom properties to keep it theme-aware.
+//
+// Example:
+//   .ng-select.ng-select-single .ng-select-container {
+//     border-color: var(--line-strong);
+//     border-radius: 8px;
+//   }
+//   .ng-dropdown-panel { border-color: var(--line-strong); }

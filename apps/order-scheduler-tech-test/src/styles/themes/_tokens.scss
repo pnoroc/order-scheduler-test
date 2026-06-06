@@ -1,0 +1,88 @@
+// Semantic design tokens, one map per theme. Every key here becomes a global
+// CSS custom property (`--#{key}`) via `themes/_theme.scss`, so this is the
+// single source of truth for the app's colour contract. Components consume the
+// resulting `var(--token)` values and never reference these maps directly.
+
+// ---------------------------------------------------------------------------
+// Light theme (default)
+// ---------------------------------------------------------------------------
+$light: (
+  // Surfaces & ink
+  'surface': #ffffff,
+  'ink': #11243f,
+  'ink-soft': #1b2a41,
+  'muted': #8a93a2,
+
+  // Lines & subtle fills
+  'line': #e7eaf0,
+  'line-strong': #e2e5ec,
+  'grid-line': #eef0f4,
+  'hover': #eef0fb,
+
+  // Brand
+  'indigo': #4f46e5,
+  'indigo-soft': #ece9fb,
+
+  // Status: Open
+  'open-fg': #1aa0b3,
+  'open-bg': #e2f6f9,
+  'open-bar': #f3fcfd,
+  'open-bd': #cdeaef,
+
+  // Status: In progress
+  'prog-fg': #5b4fd6,
+  'prog-bg': #ece9fb,
+  'prog-bar': #f5f3fe,
+  'prog-bd': #ded8fa,
+
+  // Status: Complete
+  'done-fg': #1f9d5b,
+  'done-bg': #e6f7ee,
+  'done-bar': #f1fbf5,
+  'done-bd': #cfeedd,
+
+  // Status: Blocked
+  'block-fg': #b5821a,
+  'block-bg': #fbf1d3,
+  'block-bar': #fdfaee,
+  'block-bd': #f0e2ae,
+);
+
+// ---------------------------------------------------------------------------
+// Dark theme (scaffold) — same keys, tuned for a dark surface. Adjust to taste;
+// the structure is what matters: add a theme = add a map.
+// ---------------------------------------------------------------------------
+$dark: (
+  'surface': #0f1626,
+  'ink': #e7ebf3,
+  'ink-soft': #c7cedd,
+  'muted': #7f8aa0,
+
+  'line': #243149,
+  'line-strong': #2b3a56,
+  'grid-line': #1c2740,
+  'hover': #1a2440,
+
+  'indigo': #8b83ff,
+  'indigo-soft': #2a2756,
+
+  'open-fg': #5fd3e2,
+  'open-bg': #103038,
+  'open-bar': #0d2429,
+  'open-bd': #1c4b54,
+
+  'prog-fg': #a79dff,
+  'prog-bg': #221f4a,
+  'prog-bar': #1a1838,
+  'prog-bd': #3a3473,
+
+  'done-fg': #4fd089,
+  'done-bg': #0f2e1f,
+  'done-bar': #0c2318,
+  'done-bd': #1d4d35,
+
+  'block-fg': #e0b052,
+  'block-bg': #382c10,
+  'block-bar': #2b210c,
+  'block-bd': #5c4820,
+);

@@ -15,10 +15,16 @@
     "skipDefaultLibCheck": true,
     "paths": {
       "@order-scheduler-tech-test/work-order-schedule": [
-        "./libs/feature/work-order-schedule/src/index.ts"
+        "./libs/work-order-schedule/feature-work-order-schedule/src/index.ts"
       ],
       "@order-scheduler-tech-test/ui-components": [
         "./libs/ui/ui-components/src/index.ts"
+      ],
+      "@order-scheduler-tech-test/app-container": [
+        "./libs/app-container/src/index.ts"
+      ],
+      "@order-scheduler-tech-test/work-order-schedule-data-access": [
+        "./libs/work-order-schedule/data-access/src/index.ts"
       ]
     }
   },
