@@ -25,7 +25,7 @@
             "output": "assets"
           }
         ],
-        "styles": ["apps/order-scheduler-tech-test/src/styles.scss"]
+        "styles": ["node_modules/bootstrap/dist/css/bootstrap.css", "apps/order-scheduler-tech-test/src/styles.scss"]
       },
       "configurations": {
         "production": {
