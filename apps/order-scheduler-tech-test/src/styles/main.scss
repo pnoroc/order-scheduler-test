@@ -5,7 +5,10 @@
 @use 'base/general';
 @use 'base/typography';
 
+// Components
 @use 'components/dropdown';
+@use 'components/offcanvas';
+@use 'components/button';
 
 // Third-party base styles for ng-select.
 @use '@ng-select/ng-select/themes/default.theme.css';

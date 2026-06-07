@@ -13,6 +13,8 @@ import {
 import { DateTime } from 'luxon';
 import { take } from 'rxjs';
 import { centerSchedulesToTimelineRows } from '@order-scheduler-tech-test/work-order-schedule-utils';
+import { NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
+import { WorkOrderScheduleCreateComponent } from '../work-order-schedule-create/work-order-schedule-create.component';
 
 @Component({
   selector: 'ostt-work-order-schedule',
@@ -22,6 +24,7 @@ import { centerSchedulesToTimelineRows } from '@order-scheduler-tech-test/work-o
 })
 export class WorkOrderScheduleComponent implements OnInit {
   private readonly workOrderService = inject(WorkOrderService);
+  private offcanvasService = inject(NgbOffcanvas);
 
   startDate = signal<Date>(DateTime.now().minus({ months: 6 }).toJSDate());
   endDate = signal<Date>(DateTime.now().plus({ months: 6 }).toJSDate());
@@ -36,6 +39,11 @@ export class WorkOrderScheduleComponent implements OnInit {
 
   ngOnInit() {
     this.setInitialOrders();
+    // todo - extract to a service along with the template for the drawer along with converting after close to observable
+    this.offcanvasService.open(WorkOrderScheduleCreateComponent, {
+      position: 'end',
+      backdrop: 'static'
+    });
   }
 
   setInitialOrders() {

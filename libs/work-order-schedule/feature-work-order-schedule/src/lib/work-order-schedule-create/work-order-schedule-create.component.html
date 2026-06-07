@@ -1,0 +1,96 @@
+<section class="schedule-form-header">
+  <div class="header-title">
+    <h4>Work Order Details</h4>
+    <p>
+      Specify the dates, name and status for this order
+    </p>
+  </div>
+
+  <div class="d-flex align-items-center gap-3">
+    <button class="ostt-button" (click)="abort()">Cancel</button>
+    <button class="ostt-button ostt-btn-primary" (click)="saveForm()">Create</button>
+  </div>
+</section>
+
+<section class="d-flex flex-column">
+  <form [formGroup]="scheduleForm">
+    <div class="d-flex flex-column gap-4">
+      <div class="form-group">
+        <label for="workOrderName">Work Order Name:</label>
+        <input type="text" class="form-control" formControlName="name">
+
+        @if (scheduleForm.get('name')?.touched) {
+          @if (scheduleForm.get('name')?.hasError('required')) {
+            <span class="form-error-message">Please enter a valid name</span>
+          } @else if (scheduleForm.get('name')?.hasError('minlength')) {
+            <span class="form-error-message">Name must be at least 3 characters long</span>
+          } @else if (scheduleForm.get('name')?.hasError('maxlength')) {
+            <span class="form-error-message">Name must be at most 50 characters long</span>
+          }
+        }
+
+      </div>
+
+      <div class="form-group">
+        <label for="workOrderName">Status</label>
+        <ng-select
+          [items]="statuses()"
+          bindLabel="label"
+          bindValue="value"
+          [clearable]="false"
+          formControlName="status"
+        >
+          <ng-template ng-label-tmp let-item="item">
+            <ostt-badge [label]="item.label" [type]="item.badgeType" />
+          </ng-template>
+        </ng-select>
+
+        @if (scheduleForm.get('status')?.touched) {
+          @if (scheduleForm.get('status')?.hasError('required')) {
+            <span class="form-error-message">Please select a status</span>
+          }
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="workOrderName">Start date</label>
+        <input
+          type="text"
+          class="form-control"
+          ngbDatepicker
+          formControlName="startDate"
+          #sd="ngbDatepicker"
+          (click)="sd.toggle()"
+          (keydown.tab)="sd.close()"
+          [autoClose]="true"
+        />
+
+        @if (scheduleForm.get('startDate')?.touched) {
+          @if (scheduleForm.get('startDate')?.hasError('required')) {
+            <span class="form-error-message">Please select a start date</span>
+          }
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="workOrderName">End date</label>
+        <input
+          type="text"
+          class="form-control"
+          ngbDatepicker
+          formControlName="endDate"
+          #ed="ngbDatepicker"
+          (click)="ed.toggle()"
+          (keydown.tab)="ed.close()"
+          [autoClose]="true"
+        >
+
+        @if (scheduleForm.get('endDate')?.touched) {
+          @if (scheduleForm.get('endDate')?.hasError('required')) {
+            <span class="form-error-message">Please select an end date</span>
+          }
+        }
+      </div>
+    </div>
+  </form>
+</section>

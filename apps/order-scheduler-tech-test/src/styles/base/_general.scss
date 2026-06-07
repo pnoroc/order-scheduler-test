@@ -15,10 +15,24 @@ body {
 :root {
   display: block;
 
+  --text-error:  #ef4444;
+
   //--label-w: 340px;
   //--col-w: 150px;
   //--row-h: 56px;
   //--head-h: 52px;
+}
+
+
+
+.text-color-error {
+  color: var(--text-error);
+}
+
+.form-error-message {
+  color: var(--text-error);
+  font-size: 12px;
+  position: absolute;
 }
 
 .page {
@@ -62,7 +76,7 @@ body {
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: 12px;
-  width: 80%;
+  width: 100%;
 }
 
 //.thead {

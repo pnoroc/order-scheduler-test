@@ -1,0 +1,12 @@
+:root {
+  .offcanvas {
+    width: 591px;
+    box-shadow: 0 5px 15px 0 rgba(216, 220, 235, 1) , 0 2.5px 3px -1.5px rgba(200, 207, 233, 1) , 0 4.5px 5px -1px rgba(216, 220, 235, 1);
+    border-radius: 12px 0 0 12px;
+    background-color: rgba(255, 255, 255, 1);
+  }
+
+  .offcanvas-backdrop {
+    background: rgba(0, 0, 0, 0.12);
+  }
+}

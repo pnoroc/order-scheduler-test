@@ -12,6 +12,7 @@ export class BadgeComponent {
   label = input<string>();
   type = input<BadgeType>();
 }
+// todo - convert to enum
 export type BadgeType = 'primary' | 'info' | 'success' | 'warning' | 'error';
 export interface BadgeConfig {
   label: string;
