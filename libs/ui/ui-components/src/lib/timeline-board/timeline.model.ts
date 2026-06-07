@@ -6,6 +6,8 @@
  * internally once dates have been resolved to pixel coordinates.
  */
 
+import { BadgeConfig } from '../badge/badge.component';
+
 /** A schedulable bar rendered on a single row. Part of the public API. */
 export interface TimelineItem {
   id: string;
@@ -13,7 +15,9 @@ export interface TimelineItem {
   startDate: Date;
   endDate: Date;
   color?: string;
+  badge?: BadgeConfig;
   isPlaceholder?: boolean;
+
 }
 
 /** A single horizontal lane (e.g. a team or work center). Public API. */

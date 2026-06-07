@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   DropdownComponent,
   DropdownItem,
@@ -6,6 +6,13 @@ import {
   TimelineRow,
   ZoomLevel,
 } from '@order-scheduler-tech-test/ui-components';
+import {
+  WorkCenterSchedule,
+  WorkOrderService,
+} from '@order-scheduler-tech-test/work-order-schedule-data-access';
+import { DateTime } from 'luxon';
+import { take } from 'rxjs';
+import { centerSchedulesToTimelineRows } from '@order-scheduler-tech-test/work-order-schedule-utils';
 
 @Component({
   selector: 'ostt-work-order-schedule',
@@ -13,35 +20,44 @@ import {
   styleUrl: './work-order-schedule.component.scss',
   imports: [DropdownComponent, TimelineBoardComponent],
 })
-export class WorkOrderScheduleComponent {
-  startDate = new Date('2026-03-01');
-  endDate = new Date('2027-03-01');
-  zoomLevel: ZoomLevel = 'month';
+export class WorkOrderScheduleComponent implements OnInit {
+  private readonly workOrderService = inject(WorkOrderService);
+
+  startDate = signal<Date>(DateTime.now().minus({ months: 6 }).toJSDate());
+  endDate = signal<Date>(DateTime.now().plus({ months: 6 }).toJSDate());
+  zoomLevel = signal<ZoomLevel>('month');
+  dataRows = signal<TimelineRow[]>([]);
+
   zoomLevels: DropdownItem[] = [
     { value: 'day', label: 'Day' },
     { value: 'week', label: 'Week' },
     { value: 'month', label: 'Month' },
   ];
 
-  rows: TimelineRow[] = [
-    {
-      id: '1',
-      title: 'Team A',
-      items: [
-        {
-          id: '1',
-          label: 'Work A',
-          startDate: new Date('2026-04-01'),
-          endDate: new Date('2026-07-02'),
+  ngOnInit() {
+    this.setInitialOrders();
+  }
+
+  setInitialOrders() {
+    this.setOrdersInPeriod(
+      DateTime.fromJSDate(this.startDate()),
+      DateTime.fromJSDate(this.endDate()),
+    );
+  }
+
+  setOrdersInPeriod(start: DateTime, end: DateTime) {
+    this.workOrderService
+      .getAllSchedulesInPeriod(start, end)
+      .pipe(take(1))
+      .subscribe({
+        next: (value: WorkCenterSchedule[]) => {
+          const timelineRows = centerSchedulesToTimelineRows(value);
+          this.dataRows.set(timelineRows);
         },
-      ],
-    },
-    { id: '2', title: 'Team B', items: [] },
-    { id: '3', title: 'Team C', items: [] },
-  ];
+      });
+  }
 
   handleZoomLevelChange(item: DropdownItem) {
-    console.log('Zoom level changed to:', item.value);
-    this.zoomLevel = item.value as ZoomLevel;
+    this.zoomLevel.set(item.value as ZoomLevel);
   }
 }

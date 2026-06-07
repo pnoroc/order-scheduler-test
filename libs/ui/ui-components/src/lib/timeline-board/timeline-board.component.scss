@@ -135,9 +135,11 @@
 .bar {
   position: absolute;
   top: 8px;
+  display: flex;
   z-index: 1; /* above the today line, below the sticky label */
   display: flex;
   align-items: center;
+  justify-content: space-between;
   height: calc(var(--row-h) - 16px);
   padding: 0 10px;
   border-radius: 8px;
@@ -148,6 +150,7 @@
   transition:
     filter 0.15s ease,
     box-shadow 0.15s ease;
+  overflow: hidden;
 
   &:hover {
     filter: brightness(1.04);
@@ -159,6 +162,7 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  color: rgba(3, 9, 41, 1);
 }
 
 /* --- Bonus: today indicator -------------------------------------------- */

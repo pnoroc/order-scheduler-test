@@ -1,17 +1,17 @@
 {
-  "name": "work-order-schedule-data-access",
+  "name": "work-order-schedule-utils",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/work-order-schedule/data-access/src",
+  "sourceRoot": "libs/work-order-schedule/utils/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": ["domain:scheduling", "type:data-access"],
+  "tags": ["type:utils"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/work-order-schedule/data-access/jest.config.cts",
-        "tsConfig": "libs/work-order-schedule/data-access/tsconfig.spec.json"
+        "jestConfig": "libs/work-order-schedule/utils/jest.config.cts",
+        "tsConfig": "libs/work-order-schedule/utils/tsconfig.spec.json"
       }
     },
     "lint": {

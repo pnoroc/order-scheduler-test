@@ -2,10 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  ElementRef,
   input,
   signal,
-  viewChild,
 } from '@angular/core';
 import {
   PositionedRow,
@@ -21,6 +19,7 @@ import {
   MIN_BAR_WIDTH,
   startOfDay,
 } from './timeline.util';
+import { BadgeComponent } from '../badge/badge.component';
 
 /**
  * A reusable, horizontally-scrollable timeline board.
@@ -44,6 +43,7 @@ import {
   templateUrl: './timeline-board.component.html',
   styleUrl: './timeline-board.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [BadgeComponent],
 })
 export class TimelineBoardComponent {
   startDate = input.required<Date>();

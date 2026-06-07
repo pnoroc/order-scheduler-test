@@ -1,16 +1,76 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { DateTime } from 'luxon';
+import { combineLatest, map, Observable, of, take } from 'rxjs';
+import {
+  ScheduledWorkOrder,
+  WorkCenterSchedule,
+} from '../models/work-center-schedule.model';
 import { WorkCenterDocument } from '../models/work-center.model';
 import { WorkOrderDocument } from '../models/work-order.model';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class WorkOrderService {
-  getCentersList(): Observable<WorkCenterDocument[]> {
-    return of(centers);
+  getCenters(): Observable<WorkCenterDocument[]> {
+    return of(centers).pipe(take(1));
   }
 
-  getOrdersList(): Observable<WorkOrderDocument[]> {
-    return of(orders);
+  getOrders(): Observable<WorkOrderDocument[]> {
+    return of(orders).pipe(take(1));
+  }
+
+  getAllSchedulesInPeriod(
+    start: DateTime,
+    end: DateTime,
+  ): Observable<WorkCenterSchedule[]> {
+    const rangeStart = start.startOf('day').toMillis();
+    const rangeEnd = end.endOf('day').toMillis();
+
+    return combineLatest([this.getCenters(), this.getOrders()]).pipe(
+      map(([centers, orders]) => {
+        const ordersByCenter = new Map<string, WorkOrderDocument[]>();
+
+        for (const order of orders) {
+          const s = DateTime.fromISO(order.data.startDate).toMillis();
+          const e = DateTime.fromISO(order.data.endDate).toMillis();
+          if (s <= rangeEnd && e >= rangeStart) {
+            const centerOrders = ordersByCenter.get(order.data.workCenterId) ?? [];
+            centerOrders.push(order);
+            ordersByCenter.set(order.data.workCenterId, centerOrders);
+          }
+        }
+
+        return centers.map((center) => ({
+          center,
+          orders: ordersByCenter.get(center.docId) ?? [],
+        }));
+      }),
+    );
+  }
+
+  getOrdersInPeriod(
+    startDate: DateTime,
+    endDate: DateTime,
+  ): Observable<ScheduledWorkOrder[]> {
+    const rangeStart = startDate.startOf('day').toMillis();
+    const rangeEnd = endDate.endOf('day').toMillis();
+
+    const centerById = new Map(centers.map((center) => [center.docId, center]));
+
+    const scheduled = orders
+      .filter((order) => {
+        const orderStart = DateTime.fromISO(order.data.startDate).toMillis();
+        const orderEnd = DateTime.fromISO(order.data.endDate).toMillis();
+        return orderStart <= rangeEnd && orderEnd >= rangeStart;
+      })
+      .map<ScheduledWorkOrder | null>((order) => {
+        const center = centerById.get(order.data.workCenterId);
+        return center ? { order, center } : null;
+      })
+      .filter((entry): entry is ScheduledWorkOrder => entry !== null);
+
+    return of(scheduled);
   }
 }
 

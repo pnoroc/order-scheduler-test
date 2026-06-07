@@ -25,6 +25,9 @@
       ],
       "@order-scheduler-tech-test/work-order-schedule-data-access": [
         "./libs/work-order-schedule/data-access/src/index.ts"
+      ],
+      "@order-scheduler-tech-test/work-order-schedule-utils": [
+        "./libs/work-order-schedule/utils/src/index.ts"
       ]
     }
   },

@@ -19,6 +19,7 @@ export default [
             {
               sourceTag: 'type:app',
               onlyDependOnLibsWithTags: [
+                'type:app',
                 'type:feature',
                 'type:ui',
                 'type:data-access',
