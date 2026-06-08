@@ -15,11 +15,6 @@
     color: #495057;
     cursor: pointer;
     transition: background-color 0.2s ease;
-
-    &:hover, &:focus {
-      background-color: rgba(0, 0, 0, 0.05);
-      outline: none;
-    }
   }
 }
 
@@ -41,10 +36,5 @@
     cursor: pointer;
     font-family: sans-serif;
     transition: background-color 0.15s ease, color 0.15s ease;
-
-    &:hover {
-      background-color: #f1f5f9;
-      color: #0f172a;
-    }
   }
 }

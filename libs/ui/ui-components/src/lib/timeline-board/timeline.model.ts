@@ -7,6 +7,7 @@
  */
 
 import { BadgeConfig } from '../badge/badge.component';
+import { TimelineItemStatusPresets } from './timeline.util';
 
 /** A schedulable bar rendered on a single row. Part of the public API. */
 export interface TimelineItem {
@@ -15,6 +16,7 @@ export interface TimelineItem {
   startDate: Date;
   endDate: Date;
   color?: string;
+  colorPreset?: TimelineItemStatusPresets;
   badge?: BadgeConfig;
   isPlaceholder?: boolean;
   entity?: unknown;

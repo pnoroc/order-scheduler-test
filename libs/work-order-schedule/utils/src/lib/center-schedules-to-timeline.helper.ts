@@ -4,6 +4,7 @@ import {
 } from '@order-scheduler-tech-test/work-order-schedule-data-access';
 import {
   BadgeConfig,
+  TimelineItemStatusPresets,
   TimelineRow,
 } from '@order-scheduler-tech-test/ui-components';
 import { DateTime } from 'luxon';
@@ -20,6 +21,16 @@ const WORK_ORDER_MAP: Record<WorkOrderStatus, BadgeConfig> = {
   'in-progress': { label: 'In Progress', type: 'info' },
   complete: { label: 'Complete', type: 'success' },
   blocked: { label: 'Blocked', type: 'warning' },
+};
+
+const TIMELINE_STATUS_PRESETS: Record<
+  WorkOrderStatus,
+  TimelineItemStatusPresets
+> = {
+  open: 'primary',
+  'in-progress': 'info',
+  complete: 'success',
+  blocked: 'warning',
 };
 
 /**
@@ -39,6 +50,7 @@ export function centerSchedulesToTimelineRows(
       startDate: DateTime.fromISO(order.data.startDate).toJSDate(),
       endDate: DateTime.fromISO(order.data.endDate).toJSDate(),
       color: STATUS_COLORS[order.data.status],
+      colorPreset: TIMELINE_STATUS_PRESETS[order.data.status],
       badge: WORK_ORDER_MAP[order.data.status],
       entity: order as unknown,
     })),

@@ -225,3 +225,5 @@ export function dateToX(
   // Past the final column — clamp to the track's right edge.
   return columns.length * columnWidth;
 }
+
+export type TimelineItemStatusPresets = 'primary' | 'info' | 'success' | 'warning';

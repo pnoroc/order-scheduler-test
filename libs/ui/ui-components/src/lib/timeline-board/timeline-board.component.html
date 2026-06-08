@@ -28,7 +28,7 @@
               class="bar"
               [style.left.px]="bar.left"
               [style.width.px]="bar.width"
-              [style.background]="bar.color"
+              [ngClass]="bar?.colorPreset"
               [title]="bar.label"
               (mouseover)="clearPlaceholder()"
               (focus)="clearPlaceholder()"

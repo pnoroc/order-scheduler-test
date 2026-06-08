@@ -1,8 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal, TemplateRef } from '@angular/core';
-import { PositionedRow, TimelineColumn, TimelineRow, ZoomLevel } from './timeline.model';
+import {
+  PositionedRow,
+  TimelineColumn,
+  TimelineItem,
+  TimelineRow,
+  ZoomLevel,
+} from './timeline.model';
 import { addDays, buildColumns, clamp, dateToX, MIN_BAR_WIDTH, startOfDay } from './timeline.util';
 import { BadgeComponent } from '../badge/badge.component';
-import { NgTemplateOutlet } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 /**
@@ -27,7 +33,7 @@ import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './timeline-board.component.html',
   styleUrl: './timeline-board.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent, NgTemplateOutlet, NgbTooltip],
+  imports: [BadgeComponent, NgTemplateOutlet, NgbTooltip, NgClass],
 })
 export class TimelineBoardComponent {
   startDate = input.required<Date>();
@@ -74,7 +80,7 @@ export class TimelineBoardComponent {
     const fallback = this.defaultColor();
 
     return this.rows().map((row) => {
-      let bars = row.items.map((item) => {
+      const bars = row.items.map((item: TimelineItem) => {
         const left = clamp(
           dateToX(item.startDate, columns, columnWidth),
           0,
