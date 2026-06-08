@@ -32,7 +32,14 @@
               [title]="bar.label"
             >
               <span class="bar__label">{{ bar.label }}</span>
-              <ostt-badge [label]="bar?.badge?.label" [type]="bar?.badge?.type" />
+
+              <div class="d-flex align-items-center gap-2">
+                <ostt-badge [label]="bar?.badge?.label" [type]="bar?.badge?.type" />
+                <ostt-action-menu
+                  [menuItems]="[{id: '1', label: 'Edit'}]"
+                  (actionSelected)="handleActionSelected($event, bar)"
+                ></ostt-action-menu>
+              </div>
             </div>
           }
         </div>

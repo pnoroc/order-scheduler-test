@@ -1,25 +1,17 @@
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  signal,
-} from '@angular/core';
-import {
+  PositionedItem,
   PositionedRow,
   TimelineColumn,
   TimelineRow,
   ZoomLevel,
 } from './timeline.model';
-import {
-  addDays,
-  buildColumns,
-  clamp,
-  dateToX,
-  MIN_BAR_WIDTH,
-  startOfDay,
-} from './timeline.util';
+import { addDays, buildColumns, clamp, dateToX, MIN_BAR_WIDTH, startOfDay } from './timeline.util';
 import { BadgeComponent } from '../badge/badge.component';
+import {
+  ActionMenuComponent,
+  ActionMenuItem,
+} from '../action-menu/action-menu.component';
 
 /**
  * A reusable, horizontally-scrollable timeline board.
@@ -43,7 +35,7 @@ import { BadgeComponent } from '../badge/badge.component';
   templateUrl: './timeline-board.component.html',
   styleUrl: './timeline-board.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent],
+  imports: [BadgeComponent, ActionMenuComponent],
 })
 export class TimelineBoardComponent {
   startDate = input.required<Date>();
@@ -154,5 +146,9 @@ export class TimelineBoardComponent {
 
   addItemPlaceholderToRow(x: number, item: PositionedRow) {
     this.placeholderItem.set({ rowId: item.id, positionX: x });
+  }
+
+  handleActionSelected(event: ActionMenuItem, bar: PositionedItem) {
+    console.log('Action selected', event, bar);
   }
 }
