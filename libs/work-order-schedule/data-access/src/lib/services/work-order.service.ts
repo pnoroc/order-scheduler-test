@@ -1,336 +1,228 @@
 import { Injectable } from '@angular/core';
 import { DateTime } from 'luxon';
-import { combineLatest, map, Observable, of, take } from 'rxjs';
+import { BehaviorSubject, map, Observable, take, tap } from 'rxjs';
+import {
+  MockErpState,
+  WorkOrderChanges,
+} from '../models/mock-erp-state.model';
 import {
   ScheduledWorkOrder,
   WorkCenterSchedule,
 } from '../models/work-center-schedule.model';
 import { WorkCenterDocument } from '../models/work-center.model';
 import { WorkOrderDocument } from '../models/work-order.model';
+import { createInitialMockErpState } from './mock-erp-seed';
+import {
+  addOrderToState,
+  applyOrderChanges,
+  groupSchedulesInPeriod,
+  OrderNotFoundError,
+  OrderOverlapError,
+  orderToRange,
+  ordersForCenter,
+  rangeOverlapsAny,
+  removeOrderFromState,
+  replaceOrderInState,
+} from './work-order.helpers';
 
+/**
+ * In-memory mock of the ERP backend.
+ *
+ * All data lives in a single {@link BehaviorSubject} (`state$`) which is the one
+ * source of truth; every method derives from it (reads) or pushes a new
+ * immutable snapshot to it (writes). Helpers in `work-order.helpers.ts` are pure
+ * so the business rules (overlap, grouping) are testable in isolation and the
+ * service stays a thin reactive shell — swap `state$` for HTTP calls later and
+ * the public API is unchanged.
+ *
+ * Dates use Luxon `DateTime` to stay consistent with the rest of the codebase
+ * and the existing callers (the timeline component passes `DateTime`).
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class WorkOrderService {
+  private readonly state$ = new BehaviorSubject<MockErpState>(
+    createInitialMockErpState(),
+  );
+
+  /** Live stream of all work centers. */
   getCenters(): Observable<WorkCenterDocument[]> {
-    return of(centers).pipe(take(1));
+    return this.state$.pipe(
+      map((state) => state.centers),
+      take(1),
+    );
   }
 
+  /** Live stream of all work orders. */
   getOrders(): Observable<WorkOrderDocument[]> {
-    return of(orders).pipe(take(1));
+    return this.state$.pipe(
+      map((state) => state.orders),
+      take(1),
+    );
   }
 
+  /**
+   * Backwards-compatible alias for {@link getSchedulesInPeriod}.
+   * Retained so existing callers keep working unchanged.
+   */
   getAllSchedulesInPeriod(
+    start: DateTime,
+    end: DateTime,
+  ): Observable<WorkCenterSchedule[]> {
+    return this.getSchedulesInPeriod(start, end);
+  }
+
+  /**
+   * Centers with their in-period orders, derived from `state$`.
+   *
+   * Reactive by design: re-emits whenever the state changes (e.g. after an
+   * add/update/delete), so views that stay subscribed update automatically.
+   */
+  getSchedulesInPeriod(
     start: DateTime,
     end: DateTime,
   ): Observable<WorkCenterSchedule[]> {
     const rangeStart = start.startOf('day').toMillis();
     const rangeEnd = end.endOf('day').toMillis();
 
-    return combineLatest([this.getCenters(), this.getOrders()]).pipe(
-      map(([centers, orders]) => {
-        const ordersByCenter = new Map<string, WorkOrderDocument[]>();
+    return this.state$.pipe(
+      map((state) =>
+        groupSchedulesInPeriod(
+          state.centers,
+          state.orders,
+          rangeStart,
+          rangeEnd,
+        ),
+      ),
+    );
+  }
 
-        for (const order of orders) {
-          const s = DateTime.fromISO(order.data.startDate).toMillis();
-          const e = DateTime.fromISO(order.data.endDate).toMillis();
-          if (s <= rangeEnd && e >= rangeStart) {
-            const centerOrders = ordersByCenter.get(order.data.workCenterId) ?? [];
-            centerOrders.push(order);
-            ordersByCenter.set(order.data.workCenterId, centerOrders);
-          }
-        }
+  /** Flat read model: each in-period order paired with its resolved center. */
+  getOrdersInPeriod(
+    start: DateTime,
+    end: DateTime,
+  ): Observable<ScheduledWorkOrder[]> {
+    const rangeStart = start.startOf('day').toMillis();
+    const rangeEnd = end.endOf('day').toMillis();
 
-        return centers.map((center) => ({
-          center,
-          orders: ordersByCenter.get(center.docId) ?? [],
-        }));
+    return this.state$.pipe(
+      map((state) => {
+        const centerById = new Map(
+          state.centers.map((center) => [center.docId, center]),
+        );
+
+        return state.orders
+          .map<ScheduledWorkOrder | null>((order) => {
+            const { start: s, end: e } = orderToRange(order);
+            if (s > rangeEnd || e < rangeStart) {
+              return null;
+            }
+            const center = centerById.get(order.data.workCenterId);
+            return center ? { order, center } : null;
+          })
+          .filter((entry): entry is ScheduledWorkOrder => entry !== null);
       }),
     );
   }
 
-  getOrdersInPeriod(
-    startDate: DateTime,
-    endDate: DateTime,
-  ): Observable<ScheduledWorkOrder[]> {
-    const rangeStart = startDate.startOf('day').toMillis();
-    const rangeEnd = endDate.endOf('day').toMillis();
+  /**
+   * Is `[start, end)` free of any existing order in the given center?
+   *
+   * `true` when the range overlaps nothing; touching boundaries are allowed.
+   */
+  canScheduleOrder(
+    centerId: string,
+    start: DateTime,
+    end: DateTime,
+  ): Observable<boolean> {
+    const range = { start: start.toMillis(), end: end.toMillis() };
 
-    const centerById = new Map(centers.map((center) => [center.docId, center]));
+    return this.state$.pipe(
+      take(1),
+      map(
+        (state) =>
+          !rangeOverlapsAny(range, ordersForCenter(state.orders, centerId)),
+      ),
+    );
+  }
 
-    const scheduled = orders
-      .filter((order) => {
-        const orderStart = DateTime.fromISO(order.data.startDate).toMillis();
-        const orderEnd = DateTime.fromISO(order.data.endDate).toMillis();
-        return orderStart <= rangeEnd && orderEnd >= rangeStart;
-      })
-      .map<ScheduledWorkOrder | null>((order) => {
-        const center = centerById.get(order.data.workCenterId);
-        return center ? { order, center } : null;
-      })
-      .filter((entry): entry is ScheduledWorkOrder => entry !== null);
+  /**
+   * Add `order` to `centerId`. Errors with {@link OrderOverlapError} when the
+   * order conflicts with an existing one in the same center. The order's
+   * `workCenterId` is pinned to `centerId`.
+   */
+  addOrder(centerId: string, order: WorkOrderDocument): Observable<void> {
+    return this.state$.pipe(
+      take(1),
+      map((state) => {
+        const candidate = applyOrderChanges(order, {}, centerId);
 
-    return of(scheduled);
+        if (
+          rangeOverlapsAny(
+            orderToRange(candidate),
+            ordersForCenter(state.orders, centerId),
+          )
+        ) {
+          throw new OrderOverlapError(centerId);
+        }
+
+        return addOrderToState(state, candidate);
+      }),
+      tap((next) => this.state$.next(next)),
+      map(() => void 0),
+    );
+  }
+
+  /**
+   * Apply `changes` to an existing order, immutably. Errors with
+   * {@link OrderNotFoundError} if absent, or {@link OrderOverlapError} if the
+   * updated schedule conflicts with another order in the same center (the
+   * edited order is excluded from its own check).
+   */
+  updateOrder(
+    centerId: string,
+    orderId: string,
+    changes: WorkOrderChanges,
+  ): Observable<void> {
+    return this.state$.pipe(
+      take(1),
+      map((state) => {
+        const target = state.orders.find(
+          (order) =>
+            order.docId === orderId && order.data.workCenterId === centerId,
+        );
+
+        if (!target) {
+          throw new OrderNotFoundError(centerId, orderId);
+        }
+
+        const updated = applyOrderChanges(target, changes, centerId);
+
+        if (
+          rangeOverlapsAny(
+            orderToRange(updated),
+            ordersForCenter(state.orders, centerId),
+            orderId,
+          )
+        ) {
+          throw new OrderOverlapError(centerId);
+        }
+
+        return replaceOrderInState(state, updated);
+      }),
+      tap((next) => this.state$.next(next)),
+      map(() => void 0),
+    );
+  }
+
+  /** Remove the order matching both `centerId` and `orderId`. */
+  deleteOrder(centerId: string, orderId: string): Observable<void> {
+    return this.state$.pipe(
+      take(1),
+      map((state) => removeOrderFromState(state, centerId, orderId)),
+      tap((next) => this.state$.next(next)),
+      map(() => void 0),
+    );
   }
 }
-
-const centers: WorkCenterDocument[] = [
-  {
-    docId: '1',
-    docType: 'WorkCenter',
-    data: {
-      name: 'Genesis Hardware',
-    },
-  },
-  {
-    docId: '2',
-    docType: 'WorkCenter',
-    data: {
-      name: 'Rodriques Electrics',
-    },
-  },
-  {
-    docId: '3',
-    docType: 'WorkCenter',
-    data: {
-      name: 'Konsulting Inc',
-    },
-  },
-  {
-    docId: '4',
-    docType: 'WorkCenter',
-    data: {
-      name: 'McMarrow Distribution',
-    },
-  },
-  {
-    docId: '5',
-    docType: 'WorkCenter',
-    data: {
-      name: 'Spartan Manufacturing',
-    },
-  },
-];
-
-const orders: WorkOrderDocument[] = [
-  {
-    docId: '1',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Frame assembly',
-      workCenterId: '1',
-      status: 'open',
-      startDate: '2026-01-05',
-      endDate: '2026-02-10',
-    },
-  },
-  {
-    docId: '2',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Wiring harness build',
-      workCenterId: '2',
-      status: 'in-progress',
-      startDate: '2026-01-20',
-      endDate: '2026-03-15',
-    },
-  },
-  {
-    docId: '3',
-    docType: 'WorkOrder',
-    data: {
-      name: 'QA sample inspection',
-      workCenterId: '3',
-      status: 'complete',
-      startDate: '2026-02-01',
-      endDate: '2026-02-05',
-    },
-  },
-  {
-    docId: '4',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Tooling retrofit',
-      workCenterId: '4',
-      status: 'blocked',
-      startDate: '2026-02-12',
-      endDate: '2026-04-01',
-    },
-  },
-  {
-    docId: '5',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Pallet restock',
-      workCenterId: '5',
-      status: 'open',
-      startDate: '2026-03-01',
-      endDate: '2026-03-20',
-    },
-  },
-  {
-    docId: '6',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Line recommission',
-      workCenterId: '1',
-      status: 'in-progress',
-      startDate: '2026-03-10',
-      endDate: '2026-06-15',
-    },
-  },
-  {
-    docId: '7',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Circuit board batch',
-      workCenterId: '2',
-      status: 'complete',
-      startDate: '2026-03-25',
-      endDate: '2026-04-02',
-    },
-  },
-  {
-    docId: '8',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Compliance audit',
-      workCenterId: '3',
-      status: 'blocked',
-      startDate: '2026-04-01',
-      endDate: '2026-04-30',
-    },
-  },
-  {
-    docId: '9',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Warehouse expansion',
-      workCenterId: '4',
-      status: 'open',
-      startDate: '2026-04-15',
-      endDate: '2026-07-01',
-    },
-  },
-  {
-    docId: '10',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Motor calibration',
-      workCenterId: '5',
-      status: 'in-progress',
-      startDate: '2026-05-01',
-      endDate: '2026-06-10',
-    },
-  },
-  {
-    docId: '11',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Firmware flash',
-      workCenterId: '1',
-      status: 'complete',
-      startDate: '2026-05-05',
-      endDate: '2026-05-09',
-    },
-  },
-  {
-    docId: '12',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Part shortage hold',
-      workCenterId: '2',
-      status: 'blocked',
-      startDate: '2026-05-20',
-      endDate: '2026-06-20',
-    },
-  },
-  {
-    docId: '13',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Daily safety check',
-      workCenterId: '3',
-      status: 'open',
-      startDate: '2026-06-01',
-      endDate: '2026-06-07',
-    },
-  },
-  {
-    docId: '14',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Conveyor overhaul',
-      workCenterId: '4',
-      status: 'in-progress',
-      startDate: '2026-06-03',
-      endDate: '2026-08-15',
-    },
-  },
-  {
-    docId: '15',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Shift handover',
-      workCenterId: '5',
-      status: 'complete',
-      startDate: '2026-06-05',
-      endDate: '2026-06-06',
-    },
-  },
-  {
-    docId: '16',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Coolant leak repair',
-      workCenterId: '1',
-      status: 'blocked',
-      startDate: '2026-06-10',
-      endDate: '2026-07-10',
-    },
-  },
-  {
-    docId: '17',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Q3 production run',
-      workCenterId: '2',
-      status: 'open',
-      startDate: '2026-07-01',
-      endDate: '2026-09-30',
-    },
-  },
-  {
-    docId: '18',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Packaging changeover',
-      workCenterId: '3',
-      status: 'in-progress',
-      startDate: '2026-07-15',
-      endDate: '2026-08-01',
-    },
-  },
-  {
-    docId: '19',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Final shipment prep',
-      workCenterId: '4',
-      status: 'complete',
-      startDate: '2026-08-01',
-      endDate: '2026-08-20',
-    },
-  },
-  {
-    docId: '20',
-    docType: 'WorkOrder',
-    data: {
-      name: 'Annual maintenance',
-      workCenterId: '5',
-      status: 'blocked',
-      startDate: '2026-08-10',
-      endDate: '2026-10-01',
-    },
-  },
-];

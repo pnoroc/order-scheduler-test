@@ -17,7 +17,7 @@ export interface TimelineItem {
   color?: string;
   badge?: BadgeConfig;
   isPlaceholder?: boolean;
-
+  entity?: unknown;
 }
 
 /** A single horizontal lane (e.g. a team or work center). Public API. */

@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { AppendToBodyDirective } from '../directives/append-to-body.directive';
 
 export interface ActionMenuItem {
-  id: string | number;
   label: string;
+  action: (data?: unknown) => void;
+  value?: unknown;
 }
 
 @Component({
   selector: 'ostt-action-menu',
-  imports: [CommonModule, AppendToBodyDirective, AppendToBodyDirective], // 👈 Register here
+  imports: [CommonModule, AppendToBodyDirective, AppendToBodyDirective],
   templateUrl: './action-menu.component.html',
   styleUrl: './action-menu.component.scss',
   host: {

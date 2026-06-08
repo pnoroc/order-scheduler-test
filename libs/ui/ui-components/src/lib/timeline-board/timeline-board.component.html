@@ -20,9 +20,9 @@
 
     <!-- Body: one sticky title cell + one lane per row -->
     @for (row of positionedRows(); track row.id) {
-      <div class="board-row">
+      <div class="board-row" (mouseleave)="clearPlaceholder()">
         <div class="board__row-label" [title]="row.title">{{ row.title }}</div>
-        <div class="board__lane">
+        <div class="board__lane" (mousemove)="addItemPlaceholderToRow($event, row)">
           @for (bar of row.bars; track bar.id) {
             <div
               class="bar"
@@ -30,17 +30,31 @@
               [style.width.px]="bar.width"
               [style.background]="bar.color"
               [title]="bar.label"
+              (mouseover)="clearPlaceholder()"
+              (focus)="clearPlaceholder()"
             >
               <span class="bar__label">{{ bar.label }}</span>
 
               <div class="d-flex align-items-center gap-2">
                 <ostt-badge [label]="bar?.badge?.label" [type]="bar?.badge?.type" />
-                <ostt-action-menu
-                  [menuItems]="[{id: '1', label: 'Edit'}]"
-                  (actionSelected)="handleActionSelected($event, bar)"
-                ></ostt-action-menu>
+
+                @if (timelineBarActionsRef()) {
+                  <ng-container
+                    *ngTemplateOutlet="timelineBarActionsRef(); context: { data: bar }"
+                  ></ng-container>
+                }
               </div>
             </div>
+          }
+
+          @if (placeholderItem()?.rowId === row.id) {
+            <div
+              class="bar placeholder-bar"
+              [style.left.px]="placeholderItem()?.positionX"
+              (click)="onPlaceholderItemClick(row.id)"
+              (keydown.enter)="onPlaceholderItemClick(row.id)"
+              tabindex="0"
+            ></div>
           }
         </div>
       </div>
@@ -49,7 +63,6 @@
       <div class="board__lane"></div>
     }
 
-    <!-- Bonus: "today" vertical indicator (offset past the sticky label) -->
     @if (todayX() !== null) {
       <div
         class="board__today"

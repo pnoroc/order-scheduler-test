@@ -1,17 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
-import {
-  PositionedItem,
-  PositionedRow,
-  TimelineColumn,
-  TimelineRow,
-  ZoomLevel,
-} from './timeline.model';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal, TemplateRef } from '@angular/core';
+import { PositionedRow, TimelineColumn, TimelineRow, ZoomLevel } from './timeline.model';
 import { addDays, buildColumns, clamp, dateToX, MIN_BAR_WIDTH, startOfDay } from './timeline.util';
 import { BadgeComponent } from '../badge/badge.component';
-import {
-  ActionMenuComponent,
-  ActionMenuItem,
-} from '../action-menu/action-menu.component';
+import { NgTemplateOutlet } from '@angular/common';
 
 /**
  * A reusable, horizontally-scrollable timeline board.
@@ -35,7 +26,7 @@ import {
   templateUrl: './timeline-board.component.html',
   styleUrl: './timeline-board.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent, ActionMenuComponent],
+  imports: [BadgeComponent, NgTemplateOutlet],
 })
 export class TimelineBoardComponent {
   startDate = input.required<Date>();
@@ -48,6 +39,9 @@ export class TimelineBoardComponent {
   titleColumn = input<string>('Title');
   showToday = input<boolean>(true);
   defaultColor = input<string>('#3b82f6');
+  timelineBarActionsRef = input<TemplateRef<unknown> | undefined>();
+
+  boardGridCLicked = output<string>();
 
   /** Today, normalised to midnight — captured once per instance. */
   private readonly today = startOfDay(new Date());
@@ -92,6 +86,7 @@ export class TimelineBoardComponent {
           trackWidth,
         );
 
+        // todo - separate entity data from postition props
         return {
           ...item,
           color: item.color ?? fallback,
@@ -99,22 +94,6 @@ export class TimelineBoardComponent {
           width: Math.max(MIN_BAR_WIDTH, right - left),
         };
       });
-
-      if (this.placeholderItem()?.rowId === row.id) {
-        console.log('placeholderItem', this.placeholderItem());
-        bars = [
-          ...bars,
-          {
-            color: 'red',
-            left: this.placeholderItem()?.positionX as number,
-            width: 113,
-            startDate: new Date(),
-            endDate: new Date(),
-            id: '',
-            label: '',
-          },
-        ];
-      }
 
       return {
         id: row.id,
@@ -144,11 +123,23 @@ export class TimelineBoardComponent {
     return inRange ? dateToX(this.today, columns, this.monthWidth()) : null;
   });
 
-  addItemPlaceholderToRow(x: number, item: PositionedRow) {
-    this.placeholderItem.set({ rowId: item.id, positionX: x });
+  addItemPlaceholderToRow(event: MouseEvent, item: PositionedRow) {
+    const rowElement = event.target as HTMLElement;
+    const isBoardLane = rowElement.classList.contains('board__lane');
+
+    if (isBoardLane) {
+      this.placeholderItem.set({
+        rowId: item.id,
+        positionX: event.layerX - 50,
+      });
+    }
   }
 
-  handleActionSelected(event: ActionMenuItem, bar: PositionedItem) {
-    console.log('Action selected', event, bar);
+  clearPlaceholder() {
+    this.placeholderItem.set(undefined);
+  }
+
+  onPlaceholderItemClick(rowId: string) {
+    this.boardGridCLicked.emit(rowId);
   }
 }

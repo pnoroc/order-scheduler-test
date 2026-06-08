@@ -20,7 +20,7 @@
   <!-- 👈 Added appAppendToBody directive onto the panel block context -->
   @if (isOpen) {
     <ul class="dropdown-menu-panel" appAppendToBody>
-      @for (item of menuItems(); track item.id) {
+      @for (item of menuItems(); track item.label) {
         <li class="dropdown-item" (click)="onItemSelect(item)" (keyup)="onItemSelect(item)" role="button" tabindex="0" [attr.aria-label]="item.label">
           {{ item.label }}
         </li>

@@ -6,8 +6,12 @@ body {
   background: var(--surface);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
+  cursor: url('/assets/icons/Pointing.svg') 16 16, auto;
 }
 
+* {
+  cursor: url('/assets/icons/Pointing.svg') 16 16, pointer;
+}
 
 // Schedule-view styles. View-encapsulated to this component; colours come from
 // the global theme custom properties (var(--ink), var(--indigo), status tokens),

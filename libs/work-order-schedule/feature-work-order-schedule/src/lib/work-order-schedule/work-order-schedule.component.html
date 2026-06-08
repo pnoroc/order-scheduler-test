@@ -8,10 +8,19 @@
   />
 
   <ostt-timeline-board
+    titleColumn="Work Center"
     [startDate]="startDate()"
     [endDate]="endDate()"
     [rows]="dataRows()"
     [zoomLevel]="zoomLevel()"
-    titleColumn="Team"
+    [timelineBarActionsRef]="timelineOrderActions"
+    (boardGridCLicked)="openScheduleForm($event)"
   />
 </div>
+
+<ng-template #timelineOrderActions let-order="data">
+  <ostt-action-menu
+    [menuItems]="workOrderActions"
+    (actionSelected)="handleOrderActionSelected($event, order)"
+  ></ostt-action-menu>
+</ng-template>

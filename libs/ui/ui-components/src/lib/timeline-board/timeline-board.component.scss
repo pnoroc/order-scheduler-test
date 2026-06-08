@@ -157,6 +157,14 @@
     filter: brightness(1.04);
     box-shadow: 0 2px 6px rgb(0 0 0 / 18%);
   }
+
+  &.placeholder-bar {
+    width: 113px;
+    height: 38px;
+    border: 1px solid rgba(195, 199, 255, 1);
+    border-radius: 8px;
+    background-color: rgba(101, 112, 255, 0.1);
+  }
 }
 
 .bar__label {

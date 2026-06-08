@@ -40,6 +40,7 @@ export function centerSchedulesToTimelineRows(
       endDate: DateTime.fromISO(order.data.endDate).toJSDate(),
       color: STATUS_COLORS[order.data.status],
       badge: WORK_ORDER_MAP[order.data.status],
+      entity: order as unknown,
     })),
   }));
 }
