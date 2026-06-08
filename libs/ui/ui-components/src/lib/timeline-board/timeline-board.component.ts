@@ -3,6 +3,7 @@ import { PositionedRow, TimelineColumn, TimelineRow, ZoomLevel } from './timelin
 import { addDays, buildColumns, clamp, dateToX, MIN_BAR_WIDTH, startOfDay } from './timeline.util';
 import { BadgeComponent } from '../badge/badge.component';
 import { NgTemplateOutlet } from '@angular/common';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 /**
  * A reusable, horizontally-scrollable timeline board.
@@ -26,7 +27,7 @@ import { NgTemplateOutlet } from '@angular/common';
   templateUrl: './timeline-board.component.html',
   styleUrl: './timeline-board.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BadgeComponent, NgTemplateOutlet],
+  imports: [BadgeComponent, NgTemplateOutlet, NgbTooltip],
 })
 export class TimelineBoardComponent {
   startDate = input.required<Date>();

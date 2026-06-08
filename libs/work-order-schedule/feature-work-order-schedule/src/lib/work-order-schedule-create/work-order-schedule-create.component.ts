@@ -24,6 +24,7 @@ import {
 import {
   BadgeComponent,
   BadgeType,
+  ToastService,
 } from '@order-scheduler-tech-test/ui-components';
 import {
   NgbActiveOffcanvas,
@@ -47,6 +48,7 @@ import { DateTime } from 'luxon';
 export class WorkOrderScheduleCreateComponent {
   private readonly activeOffcanvas = inject(NgbActiveOffcanvas);
   private readonly workOrdersApiService = inject(WorkOrderService);
+  private readonly toastService = inject(ToastService);
 
   orderData = signal<WorkOrderDocument | undefined>(undefined);
   isEdit = computed(() => !!this.orderData()?.docId);
@@ -112,8 +114,17 @@ export class WorkOrderScheduleCreateComponent {
           );
 
       request.subscribe({
-        next: () => this.activeOffcanvas.close(),
-        error: () => alert('Order overlaps existing schedule'),
+        next: () => {
+          this.activeOffcanvas.close();
+          const message = this.isEdit() ? 'Schedule updated successfully!' : 'Schedule created successfully!';
+
+          this.toastService.show(message, {
+            classname: 'bg-success text-light',
+          });
+        },
+        error: () => this.toastService.show('Order overlaps existing schedule.', {
+          classname: 'bg-danger text-light',
+        }),
       });
     } else {
       this.scheduleForm.markAllAsTouched();
