@@ -6,6 +6,9 @@
 @use 'tokens';
 @use 'theme';
 
+// Third-party base styles for ng-select.
+@use '@ng-select/ng-select/themes/default.theme.css';
+
 :root {
   @include theme.spread(tokens.$light);
 }

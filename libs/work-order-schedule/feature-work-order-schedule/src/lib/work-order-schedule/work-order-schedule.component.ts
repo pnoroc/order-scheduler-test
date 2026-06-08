@@ -30,8 +30,8 @@ export class WorkOrderScheduleComponent implements OnInit {
   );
   private readonly workOrderService = inject(WorkOrderService);
 
-  startDate = signal<Date>(DateTime.now().minus({ weeks: 2 }).toJSDate());
-  endDate = signal<Date>(DateTime.now().plus({ months: 4 }).toJSDate());
+  startDate = signal<Date>(DateTime.now().minus({ weeks: 1 }).toJSDate());
+  endDate = signal<Date>(DateTime.now().plus({ months: 1 }).toJSDate());
   zoomLevel = signal<ZoomLevel>('day');
   dataRows = signal<TimelineRow[]>([]);
 

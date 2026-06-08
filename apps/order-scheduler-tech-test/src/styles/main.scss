@@ -1,4 +1,3 @@
-
 @use 'themes';
 
 @use 'base/reset';
@@ -9,6 +8,5 @@
 @use 'components/dropdown';
 @use 'components/offcanvas';
 @use 'components/button';
+@use 'components/tooltip';
 
-// Third-party base styles for ng-select.
-@use '@ng-select/ng-select/themes/default.theme.css';
