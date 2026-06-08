@@ -1,12 +1,11 @@
-import { Component, inject, TemplateRef } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ToastService } from './toast.service';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
-import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'ostt-toasts',
   standalone: true,
-  imports: [NgbToastModule, NgTemplateOutlet],
+  imports: [NgbToastModule],
   template: `
     @for (toast of toastService.toasts; track toast) {
       <ngb-toast
@@ -15,11 +14,7 @@ import { NgTemplateOutlet } from '@angular/common';
         [delay]="toast.delay ?? 5000"
         (hidden)="toastService.remove(toast)"
       >
-        @if (isTemplate(toast)) {
-          <ng-container [ngTemplateOutlet]="toast.textOrTpl" />
-        } @else {
-          {{ toast.textOrTpl }}
-        }
+        {{ toast.textOrTpl }}
       </ngb-toast>
     }
   `,
@@ -30,14 +25,10 @@ import { NgTemplateOutlet } from '@angular/common';
 })
 export class ToastsContainerComponent {
   toastService = inject(ToastService);
-
-  isTemplate(toast: Toast) {
-    return toast.textOrTpl instanceof TemplateRef;
-  }
 }
 
 export interface Toast {
-  textOrTpl: string | TemplateRef<unknown>;
+  textOrTpl: string;
   classname?: string;
   autohide?: boolean;
   delay?: number;

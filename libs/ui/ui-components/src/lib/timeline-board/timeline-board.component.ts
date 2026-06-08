@@ -1,11 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal, TemplateRef } from '@angular/core';
-import {
-  PositionedRow,
-  TimelineColumn,
-  TimelineItem,
-  TimelineRow,
-  ZoomLevel,
-} from './timeline.model';
+import { PositionedRow, TimelineColumn, TimelineItem, TimelineRow, ZoomLevel } from './timeline.model';
 import { addDays, buildColumns, clamp, dateToX, MIN_BAR_WIDTH, startOfDay } from './timeline.util';
 import { BadgeComponent } from '../badge/badge.component';
 import { NgClass, NgTemplateOutlet } from '@angular/common';

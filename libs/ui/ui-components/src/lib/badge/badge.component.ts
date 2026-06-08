@@ -6,7 +6,7 @@ import { Component, input } from '@angular/core';
   styleUrls: ['./badge.component.scss'],
   host: {
     '[class]': `type()`,
-  }
+  },
 })
 export class BadgeComponent {
   label = input<string>();

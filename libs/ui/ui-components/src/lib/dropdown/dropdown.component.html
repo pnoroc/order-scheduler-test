@@ -1,10 +1,48 @@
-<div class="timescale">
-  <span class="timescale__label">{{ label() }}</span>
-  <ng-select
-    [items]="items()"
-    [bindLabel]="bindLabel"
-    [bindValue]="bindValue"
-    [clearable]="false"
-    (change)="onItemChange($event)"
-  />
+<div class="dropdown mb-4" [class.dropdown--open]="isOpen()">
+  <button
+    type="button"
+    class="dropdown__control"
+    (click)="toggle($event)"
+  >
+    <span class="dropdown__label">{{ label() }}</span>
+
+    <span class="dropdown__value">
+      {{ selectedItem?.label }}
+      <svg
+        class="dropdown__chevron"
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M2.5 4.5L6 8L9.5 4.5"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </span>
+  </button>
+
+  @if (isOpen()) {
+    <ul class="dropdown__panel" role="listbox">
+      @for (item of items(); track item.value) {
+        <li
+          class="dropdown__option"
+          [class.dropdown__option--selected]="isSelected(item)"
+          role="option"
+          [attr.aria-selected]="isSelected(item)"
+          tabindex="0"
+          (click)="selectItem(item)"
+          (keyup.enter)="selectItem(item)"
+        >
+          {{ item.label }}
+        </li>
+      }
+    </ul>
+  }
 </div>

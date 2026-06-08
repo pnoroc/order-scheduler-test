@@ -1,7 +1,7 @@
-import { Directive, ElementRef, OnInit, OnDestroy } from '@angular/core';
+import { Directive, ElementRef, OnDestroy, OnInit } from '@angular/core';
 
 @Directive({
-  selector: '[appAppendToBody]',
+  selector: '[libAppAppendToBody]',
   standalone: true,
 })
 export class AppendToBodyDirective implements OnInit, OnDestroy {

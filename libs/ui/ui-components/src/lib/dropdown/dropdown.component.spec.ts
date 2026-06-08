@@ -12,6 +12,8 @@ describe('Dropdown', () => {
 
     fixture = TestBed.createComponent(DropdownComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('label', 'Timescale');
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 

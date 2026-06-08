@@ -118,11 +118,11 @@ export class WorkOrderScheduleCreateComponent {
           this.activeOffcanvas.close();
           const message = this.isEdit() ? 'Schedule updated successfully!' : 'Schedule created successfully!';
 
-          this.toastService.show(message, {
+          this.toastService.show(message as any, {
             classname: 'bg-success text-light',
           });
         },
-        error: () => this.toastService.show('Order overlaps existing schedule.', {
+        error: () => this.toastService.show('Order overlaps existing schedule.' as any, {
           classname: 'bg-danger text-light',
         }),
       });
