@@ -151,6 +151,7 @@
     box-shadow 0.15s ease;
   overflow: hidden;
   box-shadow: 0 0 0 1px rgba(195, 199, 255, 1);
+  min-width: 200px;
 
   &.success {
     box-shadow: 0 0 0 1px rgba(209, 250, 179, 1);
@@ -178,6 +179,7 @@
     border: 1px solid rgba(195, 199, 255, 1);
     border-radius: 8px;
     background-color: rgba(101, 112, 255, 0.1);
+    min-width: 113px;
   }
 }
 
