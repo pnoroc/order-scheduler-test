@@ -1,4 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import {
   ActionMenuComponent,
   ActionMenuItem,
@@ -22,6 +28,7 @@ import { FeatureWorkOrderScheduleService } from '../services/feature-work-order-
   selector: 'ostt-work-order-schedule',
   templateUrl: './work-order-schedule.component.html',
   styleUrl: './work-order-schedule.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DropdownComponent, TimelineBoardComponent, ActionMenuComponent],
 })
 export class WorkOrderScheduleComponent implements OnInit {
@@ -30,8 +37,8 @@ export class WorkOrderScheduleComponent implements OnInit {
   );
   private readonly workOrderService = inject(WorkOrderService);
 
-  startDate = signal<Date>(DateTime.now().minus({ weeks: 1 }).toJSDate());
-  endDate = signal<Date>(DateTime.now().plus({ months: 1 }).toJSDate());
+  startDate = signal<Date>(DateTime.now().minus({ weeks: 3 }).toJSDate());
+  endDate = signal<Date>(DateTime.now().plus({ months: 5 }).toJSDate());
   zoomLevel = signal<ZoomLevel>('day');
   dataRows = signal<TimelineRow[]>([]);
 

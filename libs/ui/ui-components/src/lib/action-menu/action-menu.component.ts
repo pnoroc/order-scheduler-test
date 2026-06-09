@@ -1,4 +1,11 @@
-import { Component, ElementRef, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppendToBodyDirective } from '../directives/append-to-body.directive';
 
@@ -13,6 +20,7 @@ export interface ActionMenuItem {
   imports: [CommonModule, AppendToBodyDirective, AppendToBodyDirective],
   templateUrl: './action-menu.component.html',
   styleUrl: './action-menu.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(document:click)': 'clickOutside($event)',
   },

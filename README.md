@@ -1,101 +1,146 @@
-# OrderSchedulerTechTest
+# Order Scheduler
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A work-order scheduling application built with Angular and Nx. It presents a
+zoomable **timeline board** of work orders across multiple work centers and lets
+you create, edit and delete schedules, with overlap validation so two orders can
+never occupy the same work center at the same time.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+> Repository: <https://github.com/pnoroc/order-scheduler-test.git>
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Overview
 
-## Run tasks
+The app reads from an in-memory **mock ERP backend** (no server required) and
+exposes the following:
 
-To run the dev server for your app, use:
+- **Timeline board** — work centers as rows, work orders as bars positioned by
+  their start/end dates. Bars are colour-coded by status.
+- **Zoom levels** — switch the timeline granularity between **Day**, **Week**
+  and **Month**.
+- **Create / edit orders** — a reactive form (in a slide-out panel) with a name,
+  status (`Open`, `In progress`, `Complete`, `Blocked`), and a start/end date
+  range. Form validation enforces required fields and name length.
+- **Delete orders** — via the per-order action menu.
+- **Overlap protection** — adding or editing an order that conflicts with an
+  existing order in the same work center is rejected, and a toast notification
+  explains why.
+
+State lives in a single reactive store (`WorkOrderService`); business rules
+(overlap, grouping by period) are kept in pure, testable helpers. The service is
+designed so the in-memory state can later be swapped for real HTTP calls without
+changing its public API.
+
+### Architecture & design goals
+
+The system is driven by a **single input: the selected time period**. Changing it
+should be the only trigger needed — everything downstream reacts automatically:
+
+1. The **store** fetches the data for the requested period.
+2. The **scheduler UI** composes itself from that data (rows per work center,
+   bars per order) and re-renders.
+
+This holds for any source of change, including **real-time updates** pushed from
+the backend rather than user-initiated edits.
+
+To make that possible, the store is an **abstraction over the transport**, not a
+single implementation. The same public API is backed interchangeably by:
+
+- **HTTP** — request/response fetching of schedules for a period.
+- **WebSocket** — a live subscription that streams changes in real time.
+- **localStorage** — a fully client-side store for offline or demo use.
+
+The UI never talks to a transport directly; it only observes the store's state
+and adapts to whatever the store emits. Swapping or combining transports
+therefore requires no changes to the components — exactly the seam the current
+in-memory `WorkOrderService` is designed to be replaced through.
+
+## Tech stack
+
+- **[Angular](https://angular.dev) 21** (standalone components, signals)
+- **[Nx](https://nx.dev) 22** monorepo tooling
+- **[Bootstrap](https://getbootstrap.com) 5** + **[ng-bootstrap](https://ng-bootstrap.github.io)** (offcanvas, datepicker, toasts)
+- **[ng-select](https://ng-select.github.io/ng-select)** for dropdowns
+- **[Luxon](https://moment.github.io/luxon)** for date handling
+- **Jest** (unit tests) and **Cypress** (e2e)
+
+I prefer to minimize third-party dependencies, ideally standardizing the codebase on a single UI kit like Angular Material or Ng-bootstrap.
+Since the project required the ng-bootstrap datepicker feature, I chose to standardize the rest of the UI on Bootstrap 5 for consistency.
+
+## Project structure
+
+The workspace is organised into one application and several feature/shared
+libraries:
+
+```
+apps/
+  order-scheduler-tech-test/        # The Angular application shell
+  order-scheduler-tech-test-e2e/    # Cypress end-to-end tests
+libs/
+  app-container/                    # Top-level app layout/container
+  ui/ui-components/                 # Reusable UI (timeline board, dropdown, badge, toast, action menu)
+  work-order-schedule/
+    feature-work-order-schedule/    # Schedule feature: board view + create/edit form
+    data-access/                    # Models, mock ERP state, WorkOrderService, seed data
+    utils/                          # Pure helpers (e.g. schedules → timeline rows)
+```
+
+## Prerequisites
+
+- **Node.js 20+** (LTS recommended)
+- **npm** (ships with Node)
+
+## Getting started
+
+Clone the repository and install dependencies:
+
+```sh
+git clone https://github.com/pnoroc/order-scheduler-test.git
+cd order-scheduler-test
+npm install
+```
+
+### Run the app
+
+```sh
+npm start
+```
+
+This serves the app at <http://localhost:4200/> with hot reload. The equivalent
+Nx command is:
 
 ```sh
 npx nx serve order-scheduler-tech-test
 ```
 
-To create a production bundle:
+### Build for production
 
 ```sh
 npx nx build order-scheduler-tech-test
 ```
 
-To see all available targets to run for a project, run:
+The bundle is emitted to `dist/apps/order-scheduler-tech-test`.
+
+## Testing & quality
 
 ```sh
+# Unit tests (Jest) — run for every project
+npx nx run-many -t test
+
+# Unit tests for a single project
+npx nx test work-order-schedule-data-access
+
+# Lint
+npx nx run-many -t lint
+
+# End-to-end tests (Cypress)
+npx nx e2e order-scheduler-tech-test-e2e
+```
+
+## Useful Nx commands
+
+```sh
+# Visualise the project dependency graph
+npx nx graph
+
+# Show all available targets for a project
 npx nx show project order-scheduler-tech-test
 ```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/angular:app demo
-```
-
-To generate a new library, use:
-
-```sh
-npx nx g @nx/angular:lib mylib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)

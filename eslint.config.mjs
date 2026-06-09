@@ -54,14 +54,6 @@ export default [
                 'domain:shared',
               ],
             },
-            {
-              sourceTag: 'domain:ui',
-              onlyDependOnLibsWithTags: ['domain:ui', 'domain:shared'],
-            },
-            {
-              sourceTag: 'domain:shared',
-              onlyDependOnLibsWithTags: ['domain:shared'],
-            },
           ],
         },
       ],

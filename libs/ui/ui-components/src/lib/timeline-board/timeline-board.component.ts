@@ -33,7 +33,7 @@ export class TimelineBoardComponent {
   startDate = input.required<Date>();
   endDate = input.required<Date>();
   rows = input.required<TimelineRow[]>();
-  zoomLevel = input<ZoomLevel>('month');
+  zoomLevel = input<ZoomLevel>('day');
   monthWidth = input<number>(160);
   labelWidth = input<number>(220);
   rowHeight = input<number>(56);

@@ -11,7 +11,7 @@
       <div class="board__corner">{{ titleColumn() }}</div>
       <div class="board__months">
         @for (col of columns(); track col.key) {
-          <div class="month" [class.month--current]="col.isCurrent">
+          <div class="month" >
             {{ col.label }}
           </div>
         }
